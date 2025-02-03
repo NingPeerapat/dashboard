@@ -22,11 +22,10 @@ func ApiLog() fiber.Handler {
 		yellow := color.New(color.FgYellow).SprintFunc()
 		red := color.New(color.FgRed).SprintFunc()
 
-		// log ทั้งหมดในบรรทัดเดียว
 		log.Printf("%s %s %s %s",
 			blue(">>>> Method: "+c.Method()),
 			green(", Path: "+c.Path()),
-			yellow(", Time: "+duration.String()),
+			yellow(", Time: "+duration.Truncate(time.Millisecond*10).String()),
 			func() string {
 				if err != nil {
 					return red(", Error: " + err.Error())

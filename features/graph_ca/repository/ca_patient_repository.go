@@ -43,6 +43,8 @@ func (repo *GraphCaPatientRepository) GetCaPatient(body entities.CaRequest) ([]u
 		},
 	}
 
+	unwindStage := bson.D{{Key: "$unwind", Value: "$ca_cid_count"}}
+
 	groupStage := bson.D{
 		{Key: "$group",
 			Value: bson.M{
@@ -87,7 +89,7 @@ func (repo *GraphCaPatientRepository) GetCaPatient(body entities.CaRequest) ([]u
 		},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage1, groupStage, countStage, projectStage2, sortStage}
+	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
 	cursor, err := collection.Aggregate(ctx, pipeline)
@@ -130,6 +132,8 @@ func (repo *GraphCaPatientRepository) GetLungCaPatient(body entities.CaRequest) 
 			},
 		},
 	}
+
+	unwindStage := bson.D{{Key: "$unwind", Value: "$lung_ca_cid_count"}}
 
 	groupStage := bson.D{
 		{Key: "$group",
@@ -175,7 +179,7 @@ func (repo *GraphCaPatientRepository) GetLungCaPatient(body entities.CaRequest) 
 		},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage1, groupStage, countStage, projectStage2, sortStage}
+	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
 	cursor, err := collection.Aggregate(ctx, pipeline)
@@ -218,6 +222,8 @@ func (repo *GraphCaPatientRepository) GetBreastCaPatient(body entities.CaRequest
 			},
 		},
 	}
+
+	unwindStage := bson.D{{Key: "$unwind", Value: "$breast_ca_cid_count"}}
 
 	groupStage := bson.D{
 		{Key: "$group",
@@ -263,7 +269,7 @@ func (repo *GraphCaPatientRepository) GetBreastCaPatient(body entities.CaRequest
 		},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage1, groupStage, countStage, projectStage2, sortStage}
+	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
 	cursor, err := collection.Aggregate(ctx, pipeline)
@@ -306,6 +312,8 @@ func (repo *GraphCaPatientRepository) GetCervicalCaPatient(body entities.CaReque
 			},
 		},
 	}
+
+	unwindStage := bson.D{{Key: "$unwind", Value: "$cervical_ca_cid_count"}}
 
 	groupStage := bson.D{
 		{Key: "$group",
@@ -351,7 +359,7 @@ func (repo *GraphCaPatientRepository) GetCervicalCaPatient(body entities.CaReque
 		},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage1, groupStage, countStage, projectStage2, sortStage}
+	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
 	cursor, err := collection.Aggregate(ctx, pipeline)
@@ -394,6 +402,8 @@ func (repo *GraphCaPatientRepository) GetLiverCaPatient(body entities.CaRequest)
 			},
 		},
 	}
+
+	unwindStage := bson.D{{Key: "$unwind", Value: "$liver_ca_cid_count"}}
 
 	groupStage := bson.D{
 		{Key: "$group",
@@ -439,7 +449,7 @@ func (repo *GraphCaPatientRepository) GetLiverCaPatient(body entities.CaRequest)
 		},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage1, groupStage, countStage, projectStage2, sortStage}
+	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
 	cursor, err := collection.Aggregate(ctx, pipeline)
@@ -482,6 +492,8 @@ func (repo *GraphCaPatientRepository) GetColorectalCaPatient(body entities.CaReq
 			},
 		},
 	}
+
+	unwindStage := bson.D{{Key: "$unwind", Value: "$colorectal_ca_cid_count"}}
 
 	groupStage := bson.D{
 		{Key: "$group",
@@ -527,7 +539,7 @@ func (repo *GraphCaPatientRepository) GetColorectalCaPatient(body entities.CaReq
 		},
 	}
 
-	pipeline := mongo.Pipeline{matchStage, projectStage1, groupStage, countStage, projectStage2, sortStage}
+	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
 	cursor, err := collection.Aggregate(ctx, pipeline)

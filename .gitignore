@@ -25,5 +25,3 @@
 .DS_Store  # macOS
 Thumbs.db  # Windows
 
-go.mod
-go.sum

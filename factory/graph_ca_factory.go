@@ -8,22 +8,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type GraphCaControllerFactory struct {
-	GraphCaPatientController *controller.GraphCaPatientController
-	GraphCaExpenseController *controller.GraphCaExpenseController
+type GraphCaCtrlFtr struct {
+	GraphCaPtCtrl *controller.GraphCaPtCtrl
+	GraphCaExCtrl *controller.GraphCaExCtrl
 }
 
-func NewGraphCaControllerFactory(client *mongo.Client, dbName, colName string) *GraphCaControllerFactory {
-	repoGraphCaPatient := repository.NewGraphCaPatientRepository(client, dbName, colName)
-	graphCaPatientService := service.NewGraphCaPatientService(repoGraphCaPatient)
-	graphCaPatientController := controller.NewGraphCaPatientController(graphCaPatientService)
+func NewGraphCaCtrlFtr(client *mongo.Client, dbName, colName string) *GraphCaCtrlFtr {
+	graphCaPtRepo := repository.NewGraphCaPtRepo(client, dbName, colName)
+	graphCaPtService := service.NewGraphCaPtService(graphCaPtRepo)
+	graphCaPtCtrl := controller.NewGraphCaPtCtrl(graphCaPtService)
 
-	repoGraphCaExpense := repository.NewGraphCaExpenseRepository(client, dbName, colName)
-	graphCaExpenseService := service.NewGraphCaExpenseService(repoGraphCaExpense)
-	graphCaExpenseController := controller.NewGraphCaExpenseController(graphCaExpenseService)
+	graphCaExRepo := repository.NewGraphCaExRepo(client, dbName, colName)
+	graphCaExService := service.NewGraphCaExService(graphCaExRepo)
+	graphCaExCtrl := controller.NewGraphCaExCtrl(graphCaExService)
 
-	return &GraphCaControllerFactory{
-		GraphCaPatientController: graphCaPatientController,
-		GraphCaExpenseController: graphCaExpenseController,
+	return &GraphCaCtrlFtr{
+		GraphCaPtCtrl: graphCaPtCtrl,
+		GraphCaExCtrl: graphCaExCtrl,
 	}
 }

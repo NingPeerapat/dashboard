@@ -8,22 +8,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type DiseaseControllerFactory struct {
-	DiseasePatientController *controller.DiseasePatientController
-	DiseaseExpenseController *controller.DiseaseExpenseController
+type GraphDiseaseCtrlFtr struct {
+	GraphDiseasePtCtrl *controller.GraphDiseasePtCtrl
+	GraphDiseaseExCtrl *controller.GraphDiseaseExCtrl
 }
 
-func NewDiseaseControllerFactory(client *mongo.Client, dbName, colName string) *DiseaseControllerFactory {
-	repoDiseasePatient := repository.NewDiseasePatientRepository(client, dbName, colName)
-	diseasePatientService := service.NewDiseasePatientService(repoDiseasePatient)
-	diseasePatientController := controller.NewDiseasePatientController(diseasePatientService)
+func NewGraphDiseaseCtrlFtr(client *mongo.Client, dbName, colName string) *GraphDiseaseCtrlFtr {
+	graphDiseasePtRepo := repository.NewGraphDiseasePtRepo(client, dbName, colName)
+	graphDiseasePtService := service.NewGraphDiseasePtService(graphDiseasePtRepo)
+	graphDiseasePtCtrl := controller.NewGraphDiseasePtCtrl(graphDiseasePtService)
 
-	repoDiseaseExpense := repository.NewDiseaseExpenseRepository(client, dbName, colName)
-	diseaseExpenseService := service.NewDiseaseExpenseService(repoDiseaseExpense)
-	diseaseExpenseController := controller.NewDiseaseExpenseController(diseaseExpenseService)
+	graphDiseaseExRepo := repository.NewGraphDiseaseExRepo(client, dbName, colName)
+	graphDiseaseExService := service.NewGraphDiseaseExService(graphDiseaseExRepo)
+	graphDiseaseExCtrl := controller.NewGraphDiseaseExCtrl(graphDiseaseExService)
 
-	return &DiseaseControllerFactory{
-		DiseasePatientController: diseasePatientController,
-		DiseaseExpenseController: diseaseExpenseController,
+	return &GraphDiseaseCtrlFtr{
+		GraphDiseasePtCtrl: graphDiseasePtCtrl,
+		GraphDiseaseExCtrl: graphDiseaseExCtrl,
 	}
 }

@@ -8,16 +8,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type CardControllerFactory struct {
-	CardController *controller.CardController
+type CardCtrlFtr struct {
+	CardCtrl *controller.CardCtrl
 }
 
-func NewCardControllerFactory(client *mongo.Client, dbName, colName string) *CardControllerFactory {
-	repoCard := repository.NewCardRepository(client, dbName, colName)
-	cardService := service.NewCardService(repoCard)
-	cardController := controller.NewCardController(cardService)
+func NewCardCtrlFtr(client *mongo.Client, dbName, colName string) *CardCtrlFtr {
+	cardRepo := repository.NewCardRepo(client, dbName, colName)
+	cardService := service.NewCardService(cardRepo)
+	cardCtrl := controller.NewCardCtrl(cardService)
 
-	return &CardControllerFactory{
-		CardController: cardController,
+	return &CardCtrlFtr{
+		CardCtrl: cardCtrl,
 	}
 }

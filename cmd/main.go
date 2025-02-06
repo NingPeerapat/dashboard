@@ -18,16 +18,16 @@ func main() {
 	}
 
 	// เชื่อมต่อกับ MongoDB
-	client, err := database.ConnectMongo(cfg)
+	colName, colTempName, err := database.ConnectMongo(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	chartFtr := factory.NewChartCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
-	cardFtr := factory.NewCardCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
-	graphCaFtr := factory.NewGraphCaCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
-	graphDiseaseFtr := factory.NewGraphDiseaseCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
-	graphDmFtr := factory.NewGraphDmCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
+	chartFtr := factory.NewChartCtrlFtr(colName, colTempName)
+	cardFtr := factory.NewCardCtrlFtr(colName, colTempName)
+	graphCaFtr := factory.NewGraphCaCtrlFtr(colName, colTempName)
+	graphDiseaseFtr := factory.NewGraphDiseaseCtrlFtr(colName, colTempName)
+	graphDmFtr := factory.NewGraphDmCtrlFtr(colName, colTempName)
 
 	app := fiber.New()
 

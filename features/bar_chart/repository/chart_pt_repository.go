@@ -3,30 +3,31 @@ package repository
 import (
 	"context"
 	"fmt"
-	"ning/go-dashboard/features/bar_chart/entities"
+	"ning/go-dashboard/features/bar_chart/entities/dao"
+	"ning/go-dashboard/features/bar_chart/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type ChartPatientRepository struct {
+type ChartPtRepo struct {
 	client         *mongo.Client
 	databaseName   string
 	collectionName string
 }
 
-func NewChartPatientRepository(client *mongo.Client, databaseName string, collectionName string) *ChartPatientRepository {
-	return &ChartPatientRepository{
+func NewChartPtRepo(client *mongo.Client, databaseName string, collectionName string) *ChartPtRepo {
+	return &ChartPtRepo{
 		client:         client,
 		databaseName:   databaseName,
 		collectionName: collectionName,
 	}
 }
 
-func (repo *ChartPatientRepository) GetAllData(body entities.ChartRequest) (*entities.UidData, error) {
+func (repo *ChartPtRepo) GetChartUidData(body dto.ChartRequest) (*dao.UidData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
-	var data entities.UidData
+	var data dao.UidData
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -66,9 +67,9 @@ func (repo *ChartPatientRepository) GetAllData(body entities.ChartRequest) (*ent
 	}
 	defer cursor.Close(ctx)
 
-	var results []entities.UidData
+	var results []dao.UidData
 	for cursor.Next(ctx) {
-		var result entities.UidData
+		var result dao.UidData
 		if err := cursor.Decode(&result); err != nil {
 			return nil, fmt.Errorf("error decoding data: %v", err)
 		}

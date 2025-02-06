@@ -1,54 +1,54 @@
 package controller
 
 import (
-	"ning/go-dashboard/features/bar_chart/entities"
+	"ning/go-dashboard/features/bar_chart/entities/dto"
 	"ning/go-dashboard/features/bar_chart/service"
 	"ning/go-dashboard/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type ChartPatientController struct {
-	service *service.ChartPatientService
+type ChartExCtrl struct {
+	service *service.ChartExService
 }
 
-func NewChartPatientController(service *service.ChartPatientService) *ChartPatientController {
-	return &ChartPatientController{service: service}
+func NewChartExCtrl(service *service.ChartExService) *ChartExCtrl {
+	return &ChartExCtrl{service: service}
 }
 
-func (c *ChartPatientController) GetPatientData(ctx *fiber.Ctx) error {
-	var body entities.ChartCilent
+func (c *ChartExCtrl) GetChartExData(ctx *fiber.Ctx) error {
+	var body dto.ChartCilent
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.ChartPatientResponse{
+			&dto.ChartExpenseResponse{
 				Status:  false,
 				Message: "Error in parsing request body",
-				Result:  []entities.DiseasePatientData{},
+				Result:  []dto.ChartExpenseData{},
 			})
 	}
 
 	dateStart, err := utils.ParseDate(body.StartDate)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.ChartPatientResponse{
+			&dto.ChartExpenseResponse{
 				Status:  false,
 				Message: err.Error(),
-				Result:  []entities.DiseasePatientData{},
+				Result:  []dto.ChartExpenseData{},
 			})
 	}
 
 	dateEnd, err := utils.ParseDate(body.EndDate)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.ChartPatientResponse{
+			&dto.ChartExpenseResponse{
 				Status:  false,
 				Message: err.Error(),
-				Result:  []entities.DiseasePatientData{},
+				Result:  []dto.ChartExpenseData{},
 			})
 	}
 
-	chartRequest := entities.ChartRequest{
+	chartRequest := dto.ChartRequest{
 		StartDate: dateStart,
 		EndDate:   dateEnd,
 		Area:      body.Area,
@@ -57,20 +57,23 @@ func (c *ChartPatientController) GetPatientData(ctx *fiber.Ctx) error {
 		Hcode:     body.Hcode,
 	}
 
-	patientData, err := c.service.GetPatientData(chartRequest)
+	body.StartDate = dateStart.Format("2006-01-02")
+	body.EndDate = dateEnd.Format("2006-01-02")
+
+	expenseData, err := c.service.GetChartExData(chartRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
-			&entities.ChartPatientResponse{
+			&dto.ChartExpenseResponse{
 				Status:  false,
-				Message: "Error for get patient data",
-				Result:  []entities.DiseasePatientData{},
+				Message: "Error for get expense data",
+				Result:  []dto.ChartExpenseData{},
 			})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		&entities.ChartPatientResponse{
+		&dto.ChartExpenseResponse{
 			Status:  true,
 			Message: "Success",
-			Result:  patientData,
+			Result:  expenseData,
 		})
 }

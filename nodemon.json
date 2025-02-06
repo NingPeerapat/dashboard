@@ -1,5 +1,5 @@
 {
   "watch": ["."],
   "ext": "go",
-  "exec": "cls && go run ."
+  "exec": "cls && go run ./cmd/."
 }

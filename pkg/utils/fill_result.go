@@ -12,6 +12,11 @@ type PatientData struct {
 	Month   int     `bson:"month" json:"month"`
 	Patient float64 `bson:"patient" json:"patient"`
 }
+type ExpenseData struct {
+	Year    int     `bson:"year" json:"year"`
+	Month   int     `bson:"month" json:"month"`
+	Expense float64 `bson:"expense" json:"expe"`
+}
 
 func GenerateFullMonths(year int) []FullMonthData {
 	fullMonths := make([]FullMonthData, 12)
@@ -38,6 +43,25 @@ func FillPatientResults(fullMonths []FullMonthData, data []PatientData) []float6
 	for _, d := range data {
 		key := fmt.Sprintf("%d-%d", d.Year, d.Month)
 		dataMap[key] = d.Patient
+	}
+
+	for i, item := range fullMonths {
+		key := fmt.Sprintf("%d-%d", item.Year, item.Month)
+		if val, exists := dataMap[key]; exists {
+			result[i] = val
+		}
+	}
+
+	return result
+}
+
+func FillExpenseResults(fullMonths []FullMonthData, data []ExpenseData) []float64 {
+	result := make([]float64, len(fullMonths))
+
+	dataMap := make(map[string]float64)
+	for _, d := range data {
+		key := fmt.Sprintf("%d-%d", d.Year, d.Month)
+		dataMap[key] = RoundToTwoDecimalPlaces(d.Expense)
 	}
 
 	for i, item := range fullMonths {

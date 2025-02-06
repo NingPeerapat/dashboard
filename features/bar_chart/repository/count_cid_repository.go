@@ -11,21 +11,18 @@ import (
 )
 
 type CountCidRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewCountCidRepo(client *mongo.Client, databaseName string, collectionName string) *CountCidRepo {
+func NewCountCidRepo(colName *mongo.Collection, colTemp *mongo.Collection) *CountCidRepo {
 	return &CountCidRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *CountCidRepo) CountDmCid(body dto.ChartRequest) (int, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -54,7 +51,7 @@ func (repo *CountCidRepo) CountDmCid(body dto.ChartRequest) (int, error) {
 		}}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -74,7 +71,6 @@ func (repo *CountCidRepo) CountDmCid(body dto.ChartRequest) (int, error) {
 }
 
 func (repo *CountCidRepo) CountHtCid(body dto.ChartRequest) (int, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -103,7 +99,7 @@ func (repo *CountCidRepo) CountHtCid(body dto.ChartRequest) (int, error) {
 		}}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -123,7 +119,6 @@ func (repo *CountCidRepo) CountHtCid(body dto.ChartRequest) (int, error) {
 }
 
 func (repo *CountCidRepo) CountCopdCid(body dto.ChartRequest) (int, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -152,7 +147,7 @@ func (repo *CountCidRepo) CountCopdCid(body dto.ChartRequest) (int, error) {
 		}}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -172,7 +167,6 @@ func (repo *CountCidRepo) CountCopdCid(body dto.ChartRequest) (int, error) {
 }
 
 func (repo *CountCidRepo) CountCaCid(body dto.ChartRequest) (int, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -201,7 +195,7 @@ func (repo *CountCidRepo) CountCaCid(body dto.ChartRequest) (int, error) {
 		}}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -221,7 +215,6 @@ func (repo *CountCidRepo) CountCaCid(body dto.ChartRequest) (int, error) {
 }
 
 func (repo *CountCidRepo) CountPsyCid(body dto.ChartRequest) (int, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -250,7 +243,7 @@ func (repo *CountCidRepo) CountPsyCid(body dto.ChartRequest) (int, error) {
 		}}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -270,7 +263,6 @@ func (repo *CountCidRepo) CountPsyCid(body dto.ChartRequest) (int, error) {
 }
 
 func (repo *CountCidRepo) CountHdCvdCid(body dto.ChartRequest) (int, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -299,7 +291,7 @@ func (repo *CountCidRepo) CountHdCvdCid(body dto.ChartRequest) (int, error) {
 		}}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching data: %v", err)
 	}

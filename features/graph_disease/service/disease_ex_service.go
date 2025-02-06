@@ -16,6 +16,22 @@ func NewGraphDiseaseExService(repo *repository.GraphDiseaseExRepo) *GraphDisease
 
 func (service *GraphDiseaseExService) GetGraphDiseaseExData(body dto.DiseaseRequest) ([]dto.DiseaseData, error) {
 
+	if body.Year == 2024 && body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetGraphDiseaseExTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.DiseaseData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
+
 	fullMonths := utils.GenerateFullMonths(body.Year)
 
 	expenseData, err := service.repo.GetGraphDiseaseExData(body)

@@ -16,6 +16,22 @@ func NewGraphDmExService(repo *repository.GraphDmExRepo) *GraphDmExService {
 
 func (service *GraphDmExService) GetGraphDmExData(body dto.DmRequest) ([]dto.DmData, error) {
 
+	if body.Year == 2024 && body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetGraphDiseaseExTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.DmData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
+
 	fullMonths := utils.GenerateFullMonths(body.Year)
 
 	expenseData, err := service.repo.GetGraphDmExData(body)

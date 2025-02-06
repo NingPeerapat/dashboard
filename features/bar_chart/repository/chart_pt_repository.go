@@ -12,21 +12,18 @@ import (
 )
 
 type ChartPtRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewChartPtRepo(client *mongo.Client, databaseName string, collectionName string) *ChartPtRepo {
+func NewChartPtRepo(colName *mongo.Collection, colTemp *mongo.Collection) *ChartPtRepo {
 	return &ChartPtRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *ChartPtRepo) GetChartUidData(body dto.ChartRequest) (*dao.UidData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 	var data dao.UidData
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
@@ -61,7 +58,7 @@ func (repo *ChartPtRepo) GetChartUidData(body dto.ChartRequest) (*dao.UidData, e
 	pipeline := mongo.Pipeline{matchStage, groupStage, projectStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -85,4 +82,45 @@ func (repo *ChartPtRepo) GetChartUidData(body dto.ChartRequest) (*dao.UidData, e
 	}
 
 	return &data, nil
+}
+
+func (repo *ChartPtRepo) GetChartPtTempData() ([]*dto.ChartPatientData, error) {
+	var data []dao.ChartPatientTempData
+
+	pipeline := []bson.M{
+		{
+			"$project": bson.M{
+				"chart_patient": 1,
+			},
+		},
+	}
+
+	ctx := context.TODO()
+
+	cursor, err := repo.colTemp.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &data); err != nil {
+		return nil, fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	var result []*dto.ChartPatientData
+	for _, d := range data {
+		for _, patient := range d.ChartPatientTemp {
+			result = append(result, &dto.ChartPatientData{
+				DiseaseName:  patient.DiseaseName,
+				QtyOfPatient: patient.QtyOfPatient,
+				Avg:          patient.Avg,
+			})
+		}
+	}
+
+	return result, nil
 }

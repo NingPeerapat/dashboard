@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"ning/go-dashboard/features/graph_dm/entities/dao"
 	"ning/go-dashboard/features/graph_dm/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
@@ -11,21 +12,18 @@ import (
 )
 
 type GraphDmPtRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewGraphDmPtRepo(client *mongo.Client, databaseName string, collectionName string) *GraphDmPtRepo {
+func NewGraphDmPtRepo(colName *mongo.Collection, colTemp *mongo.Collection) *GraphDmPtRepo {
 	return &GraphDmPtRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *GraphDmPtRepo) GetDmPatient(body dto.DmRequest) ([]utils.PatientData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -92,7 +90,7 @@ func (repo *GraphDmPtRepo) GetDmPatient(body dto.DmRequest) ([]utils.PatientData
 	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -115,7 +113,6 @@ func (repo *GraphDmPtRepo) GetDmPatient(body dto.DmRequest) ([]utils.PatientData
 }
 
 func (repo *GraphDmPtRepo) GetHgPatient(body dto.DmRequest) ([]utils.PatientData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -182,7 +179,7 @@ func (repo *GraphDmPtRepo) GetHgPatient(body dto.DmRequest) ([]utils.PatientData
 	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -205,7 +202,6 @@ func (repo *GraphDmPtRepo) GetHgPatient(body dto.DmRequest) ([]utils.PatientData
 }
 
 func (repo *GraphDmPtRepo) GetDmCkdPatient(body dto.DmRequest) ([]utils.PatientData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -272,7 +268,7 @@ func (repo *GraphDmPtRepo) GetDmCkdPatient(body dto.DmRequest) ([]utils.PatientD
 	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -295,7 +291,6 @@ func (repo *GraphDmPtRepo) GetDmCkdPatient(body dto.DmRequest) ([]utils.PatientD
 }
 
 func (repo *GraphDmPtRepo) GetDmAcsPatient(body dto.DmRequest) ([]utils.PatientData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -362,7 +357,7 @@ func (repo *GraphDmPtRepo) GetDmAcsPatient(body dto.DmRequest) ([]utils.PatientD
 	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -385,7 +380,6 @@ func (repo *GraphDmPtRepo) GetDmAcsPatient(body dto.DmRequest) ([]utils.PatientD
 }
 
 func (repo *GraphDmPtRepo) GetDmCvaPatient(body dto.DmRequest) ([]utils.PatientData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -452,7 +446,7 @@ func (repo *GraphDmPtRepo) GetDmCvaPatient(body dto.DmRequest) ([]utils.PatientD
 	pipeline := mongo.Pipeline{matchStage, projectStage1, unwindStage, groupStage, countStage, projectStage2, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -472,4 +466,44 @@ func (repo *GraphDmPtRepo) GetDmCvaPatient(body dto.DmRequest) ([]utils.PatientD
 	}
 
 	return results, nil
+}
+
+func (repo *GraphDmPtRepo) GetGraphDmPtTempData() ([]*dto.DmData, error) {
+	var data []dao.GraphDmPtTempData
+
+	pipeline := []bson.M{
+		{
+			"$project": bson.M{
+				"dm_patient": 1,
+			},
+		},
+	}
+
+	ctx := context.TODO()
+
+	cursor, err := repo.colTemp.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &data); err != nil {
+		return nil, fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	var result []*dto.DmData
+	for _, d := range data {
+		for _, data := range d.GraphDmPtpenseTemp {
+			result = append(result, &dto.DmData{
+				DiseaseName: data.DiseaseName,
+				Data:        data.Data,
+			})
+		}
+	}
+
+	return result, nil
 }

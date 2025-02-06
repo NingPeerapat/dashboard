@@ -18,6 +18,22 @@ func NewGraphDiseasePtService(repo *repository.GraphDiseasePtRepo) *GraphDisease
 
 func (service *GraphDiseasePtService) GetGraphDiseasePtData(body dto.DiseaseRequest) ([]dto.DiseaseData, error) {
 
+	if body.Year == 2024 && body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetGraphDiseasePtTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.DiseaseData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
+
 	var wg sync.WaitGroup
 	cidData := make(map[string][]utils.PatientData)
 	errChan := make(chan error, 6)

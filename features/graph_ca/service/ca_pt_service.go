@@ -18,6 +18,22 @@ func NewGraphCaPtService(repo *repository.GraphCaPtRepo) *GraphCaPtService {
 
 func (service *GraphCaPtService) GetGraphCaPtData(body dto.CaRequest) ([]dto.CaData, error) {
 
+	if body.Year == 2024 && body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetGraphCaPtTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.CaData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
+
 	var wg sync.WaitGroup
 	cidData := make(map[string][]utils.PatientData)
 	errChan := make(chan error, 6)

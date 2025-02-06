@@ -6,6 +6,7 @@ import (
 	"ning/go-dashboard/features/card_summary/entities/dto"
 	"ning/go-dashboard/features/card_summary/repository"
 	"ning/go-dashboard/pkg/utils"
+	"time"
 )
 
 type CardService struct {
@@ -17,6 +18,29 @@ func NewCardService(repo *repository.CardRepo) *CardService {
 }
 
 func (service *CardService) GetCardData(body dto.CardRequest) ([]dto.CardData, error) {
+
+	endDate := time.Now()
+	formattedDate := endDate.Format("2006-01-02")
+	startDateFormatted := body.StartDate.Format("2006-01-02")
+	endDateFormatted := body.EndDate.Format("2006-01-02")
+
+	if startDateFormatted == "2024-01-07" &&
+		endDateFormatted == formattedDate &&
+		body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetCradTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.CardData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
 
 	cardData, err := service.repo.GetCardData(dto.CardRequest{
 		StartDate: body.StartDate,

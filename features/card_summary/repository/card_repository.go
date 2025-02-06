@@ -12,21 +12,18 @@ import (
 )
 
 type CardRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewCardRepo(client *mongo.Client, databaseName string, collectionName string) *CardRepo {
+func NewCardRepo(colName *mongo.Collection, colTemp *mongo.Collection) *CardRepo {
 	return &CardRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *CardRepo) GetCardData(body dto.CardRequest) (*dao.CardRawData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 	var data dao.CardRawData
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
@@ -82,7 +79,7 @@ func (repo *CardRepo) GetCardData(body dto.CardRequest) (*dao.CardRawData, error
 	}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -109,7 +106,6 @@ func (repo *CardRepo) GetCardData(body dto.CardRequest) (*dao.CardRawData, error
 }
 
 func (repo *CardRepo) GetCidCountData(body dto.CardRequest) (*dao.CidCountData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 	var data dao.CidCountData
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
@@ -141,7 +137,7 @@ func (repo *CardRepo) GetCidCountData(body dto.CardRequest) (*dao.CidCountData, 
 	}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -165,4 +161,48 @@ func (repo *CardRepo) GetCidCountData(body dto.CardRequest) (*dao.CidCountData, 
 	}
 
 	return &data, nil
+}
+
+func (repo *CardRepo) GetCradTempData() ([]*dto.CardData, error) {
+	var data []dao.CardTempData
+
+	pipeline := []bson.M{
+		{
+			"$project": bson.M{
+				"card_summary": 1,
+			},
+		},
+	}
+
+	ctx := context.TODO()
+
+	cursor, err := repo.colTemp.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &data); err != nil {
+		return nil, fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	var result []*dto.CardData
+	for _, d := range data {
+		for _, card := range d.CardData {
+			result = append(result, &dto.CardData{
+				ServiceCount: card.ServiceCount,
+				PatientCount: card.PatientCount,
+				Expense:      card.Expense,
+				HcodeCount:   card.HcodeCount,
+				AvgService:   card.AvgService,
+				AvgExpense:   card.AvgExpense,
+			})
+		}
+	}
+
+	return result, nil
 }

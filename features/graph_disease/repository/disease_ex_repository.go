@@ -12,21 +12,18 @@ import (
 )
 
 type GraphDiseaseExRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewGraphDiseaseExRepo(client *mongo.Client, databaseName string, collectionName string) *GraphDiseaseExRepo {
+func NewGraphDiseaseExRepo(colName *mongo.Collection, colTemp *mongo.Collection) *GraphDiseaseExRepo {
 	return &GraphDiseaseExRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *GraphDiseaseExRepo) GetGraphDiseaseExData(body dto.DiseaseRequest) ([]dao.DiseaseExpenseData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -78,7 +75,7 @@ func (repo *GraphDiseaseExRepo) GetGraphDiseaseExData(body dto.DiseaseRequest) (
 	pipeline := mongo.Pipeline{matchStage, groupStage, projectStage, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -98,4 +95,44 @@ func (repo *GraphDiseaseExRepo) GetGraphDiseaseExData(body dto.DiseaseRequest) (
 	}
 
 	return results, nil
+}
+
+func (repo *GraphDiseaseExRepo) GetGraphDiseaseExTempData() ([]*dto.DiseaseData, error) {
+	var data []dao.GraphDiseaseExTempData
+
+	pipeline := []bson.M{
+		{
+			"$project": bson.M{
+				"disease_expense": 1,
+			},
+		},
+	}
+
+	ctx := context.TODO()
+
+	cursor, err := repo.colTemp.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &data); err != nil {
+		return nil, fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	var result []*dto.DiseaseData
+	for _, d := range data {
+		for _, data := range d.GraphDiseaseExpenseTemp {
+			result = append(result, &dto.DiseaseData{
+				DiseaseName: data.DiseaseName,
+				Data:        data.Data,
+			})
+		}
+	}
+
+	return result, nil
 }

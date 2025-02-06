@@ -7,7 +7,7 @@ type ChartPatientResponse struct {
 }
 
 type ChartPatientData struct {
-	DiseaseName  string  `json:"diseaseName"`
-	QtyOfPatient int     `json:"qtyOfPatient"`
-	Avg          float64 `json:"avg"`
+	DiseaseName  string  `bson:"diseaseName" json:"diseaseName"`
+	QtyOfPatient int     `bson:"qtyOfPatient" json:"qtyOfPatient"`
+	Avg          float64 `bson:"avg" json:"avg"`
 }

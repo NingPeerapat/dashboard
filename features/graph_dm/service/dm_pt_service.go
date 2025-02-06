@@ -18,6 +18,22 @@ func NewGraphDmPtService(repo *repository.GraphDmPtRepo) *GraphDmPtService {
 
 func (service *GraphDmPtService) GetGraphDmPtData(body dto.DmRequest) ([]dto.DmData, error) {
 
+	if body.Year == 2024 && body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetGraphDmPtTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.DmData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
+
 	var wg sync.WaitGroup
 	cidData := make(map[string][]utils.PatientData)
 	errChan := make(chan error, 6)

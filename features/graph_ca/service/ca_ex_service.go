@@ -16,6 +16,22 @@ func NewGraphCaExService(repo *repository.GraphCaExRepo) *GraphCaExService {
 
 func (service *GraphCaExService) GetGraphCaExData(body dto.CaRequest) ([]dto.CaData, error) {
 
+	if body.Year == 2024 && body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetGraphCaExTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.CaData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
+
 	fullMonths := utils.GenerateFullMonths(body.Year)
 
 	expenseData, err := service.repo.GetGraphCaExData(body)

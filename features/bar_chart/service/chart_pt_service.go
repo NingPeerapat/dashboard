@@ -8,6 +8,7 @@ import (
 	"ning/go-dashboard/features/bar_chart/repository"
 	"ning/go-dashboard/pkg/utils"
 	"sync"
+	"time"
 )
 
 type ChartPtService struct {
@@ -20,6 +21,29 @@ func NewChartPtService(repo *repository.ChartPtRepo, count *repository.CountCidR
 }
 
 func (service *ChartPtService) GetChartPtData(body dto.ChartRequest) ([]dto.ChartPatientData, error) {
+
+	endDate := time.Now()
+	formattedDate := endDate.Format("2006-01-02")
+	startDateFormatted := body.StartDate.Format("2006-01-02")
+	endDateFormatted := body.EndDate.Format("2006-01-02")
+
+	if startDateFormatted == "2024-01-07" &&
+		endDateFormatted == formattedDate &&
+		body.Area == "" &&
+		body.Province == "" &&
+		body.District == "" &&
+		body.Hcode == "" {
+
+		tempData, err := service.repo.GetChartPtTempData()
+		if err != nil {
+			return nil, err
+		}
+		convertedData := make([]dto.ChartPatientData, len(tempData))
+		for i, v := range tempData {
+			convertedData[i] = *v
+		}
+		return convertedData, nil
+	}
 
 	var wg sync.WaitGroup
 	countData := make(map[string]int)

@@ -12,21 +12,18 @@ import (
 )
 
 type GraphCaExRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewGraphCaExRepo(client *mongo.Client, databaseName string, collectionName string) *GraphCaExRepo {
+func NewGraphCaExRepo(colName *mongo.Collection, colTemp *mongo.Collection) *GraphCaExRepo {
 	return &GraphCaExRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *GraphCaExRepo) GetGraphCaExData(body dto.CaRequest) ([]dao.CaExpenseData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -78,7 +75,7 @@ func (repo *GraphCaExRepo) GetGraphCaExData(body dto.CaRequest) ([]dao.CaExpense
 	pipeline := mongo.Pipeline{matchStage, groupStage, projectStage, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -98,4 +95,44 @@ func (repo *GraphCaExRepo) GetGraphCaExData(body dto.CaRequest) ([]dao.CaExpense
 	}
 
 	return results, nil
+}
+
+func (repo *GraphCaExRepo) GetGraphCaExTempData() ([]*dto.CaData, error) {
+	var data []dao.GraphCaExTempData
+
+	pipeline := []bson.M{
+		{
+			"$project": bson.M{
+				"ca_expense": 1,
+			},
+		},
+	}
+
+	ctx := context.TODO()
+
+	cursor, err := repo.colTemp.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &data); err != nil {
+		return nil, fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	var result []*dto.CaData
+	for _, d := range data {
+		for _, data := range d.GraphCaExpenseTemp {
+			result = append(result, &dto.CaData{
+				DiseaseName: data.DiseaseName,
+				Data:        data.Data,
+			})
+		}
+	}
+
+	return result, nil
 }

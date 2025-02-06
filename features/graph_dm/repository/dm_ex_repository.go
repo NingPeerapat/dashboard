@@ -12,21 +12,18 @@ import (
 )
 
 type GraphDmExRepo struct {
-	client         *mongo.Client
-	databaseName   string
-	collectionName string
+	colName *mongo.Collection
+	colTemp *mongo.Collection
 }
 
-func NewGraphDmExRepo(client *mongo.Client, databaseName string, collectionName string) *GraphDmExRepo {
+func NewGraphDmExRepo(colName *mongo.Collection, colTemp *mongo.Collection) *GraphDmExRepo {
 	return &GraphDmExRepo{
-		client:         client,
-		databaseName:   databaseName,
-		collectionName: collectionName,
+		colName: colName,
+		colTemp: colTemp,
 	}
 }
 
 func (repo *GraphDmExRepo) GetGraphDmExData(body dto.DmRequest) ([]dao.DmExpenseData, error) {
-	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -76,7 +73,7 @@ func (repo *GraphDmExRepo) GetGraphDmExData(body dto.DmRequest) ([]dao.DmExpense
 	pipeline := mongo.Pipeline{matchStage, groupStage, projectStage, sortStage}
 
 	ctx := context.TODO()
-	cursor, err := collection.Aggregate(ctx, pipeline)
+	cursor, err := repo.colName.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
@@ -96,4 +93,44 @@ func (repo *GraphDmExRepo) GetGraphDmExData(body dto.DmRequest) ([]dao.DmExpense
 	}
 
 	return results, nil
+}
+
+func (repo *GraphDmExRepo) GetGraphDiseaseExTempData() ([]*dto.DmData, error) {
+	var data []dao.GraphDmExTempData
+
+	pipeline := []bson.M{
+		{
+			"$project": bson.M{
+				"dm_expense": 1,
+			},
+		},
+	}
+
+	ctx := context.TODO()
+
+	cursor, err := repo.colTemp.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching data: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &data); err != nil {
+		return nil, fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	var result []*dto.DmData
+	for _, d := range data {
+		for _, data := range d.GraphDmExpenseTemp {
+			result = append(result, &dto.DmData{
+				DiseaseName: data.DiseaseName,
+				Data:        data.Data,
+			})
+		}
+	}
+
+	return result, nil
 }

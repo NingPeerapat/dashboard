@@ -13,23 +13,30 @@ import (
 	graph_disease_c "ning/go-dashboard/features/graph_disease/controller"
 	graph_disease_r "ning/go-dashboard/features/graph_disease/route"
 
+	graph_dm_c "ning/go-dashboard/features/graph_dm/controller"
+	graph_dm_r "ning/go-dashboard/features/graph_dm/route"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func RegisterAllRoutes(app *fiber.App,
-	chartExController *chart_c.ChartExpenseController,
-	chartPtController *chart_c.ChartPatientController,
-	cardController *card_c.CardController,
-	graphCaPatientController *graph_ca_c.GraphCaPatientController,
-	graphCaExpenseController *graph_ca_c.GraphCaExpenseController,
-	diseasePatientController *graph_disease_c.DiseasePatientController,
-	diseaseExpenseController *graph_disease_c.DiseaseExpenseController) {
+	chartPtCtrl *chart_c.ChartPtCtrl,
+	chartExCtrl *chart_c.ChartExCtrl,
+	cardCtrl *card_c.CardCtrl,
+	graphCaPtCtrl *graph_ca_c.GraphCaPtCtrl,
+	graphCaExCtrl *graph_ca_c.GraphCaExCtrl,
+	graphDiseasePtCtrl *graph_disease_c.GraphDiseasePtCtrl,
+	graphDiseaseExCtrl *graph_disease_c.GraphDiseaseExCtrl,
+	graphDmPtCtrl *graph_dm_c.GraphDmPtCtrl,
+	graphDmExCtrl *graph_dm_c.GraphDmExCtrl) {
 
-	chart_r.RegisterExpenseRoutes(app, chartExController)
-	chart_r.RegisterPatientRoutes(app, chartPtController)
-	card_r.RegisterCardRoutes(app, cardController)
-	graph_ca_r.RegisterPatientRoutes(app, graphCaPatientController)
-	graph_ca_r.RegisterExpenseRoutes(app, graphCaExpenseController)
-	graph_disease_r.RegisterPatientRoutes(app, diseasePatientController)
-	graph_disease_r.RegisterExpenseRoutes(app, diseaseExpenseController)
+	chart_r.RegisterPatientRoutes(app, chartPtCtrl)
+	chart_r.RegisterExpenseRoutes(app, chartExCtrl)
+	card_r.RegisterCardRoutes(app, cardCtrl)
+	graph_ca_r.RegisterPatientRoutes(app, graphCaPtCtrl)
+	graph_ca_r.RegisterExpenseRoutes(app, graphCaExCtrl)
+	graph_disease_r.RegisterPatientRoutes(app, graphDiseasePtCtrl)
+	graph_disease_r.RegisterExpenseRoutes(app, graphDiseaseExCtrl)
+	graph_dm_r.RegisterPatientRoutes(app, graphDmPtCtrl)
+	graph_dm_r.RegisterExpenseRoutes(app, graphDmExCtrl)
 }

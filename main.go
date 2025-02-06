@@ -23,23 +23,26 @@ func main() {
 		log.Fatal(err)
 	}
 
-	chartFactory := factory.NewChartControllerFactory(client, cfg.DatabaseName, cfg.CollectionName)
-	cardFactory := factory.NewCardControllerFactory(client, cfg.DatabaseName, cfg.CollectionName)
-	graphCaFactory := factory.NewGraphCaControllerFactory(client, cfg.DatabaseName, cfg.CollectionName)
-	graphDiseaseFactory := factory.NewDiseaseControllerFactory(client, cfg.DatabaseName, cfg.CollectionName)
+	chartFtr := factory.NewChartCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
+	cardFtr := factory.NewCardCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
+	graphCaFtr := factory.NewGraphCaCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
+	graphDiseaseFtr := factory.NewGraphDiseaseCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
+	graphDmFtr := factory.NewGraphDmCtrlFtr(client, cfg.DatabaseName, cfg.CollectionName)
 
 	app := fiber.New()
 
 	app.Use(l.ApiLog())
 
 	RegisterAllRoutes(app,
-		chartFactory.ChartExpenseController,
-		chartFactory.ChartPatientController,
-		cardFactory.CardController,
-		graphCaFactory.GraphCaPatientController,
-		graphCaFactory.GraphCaExpenseController,
-		graphDiseaseFactory.DiseasePatientController,
-		graphDiseaseFactory.DiseaseExpenseController)
+		chartFtr.ChartPtCtrl,
+		chartFtr.ChartExCtrl,
+		cardFtr.CardCtrl,
+		graphCaFtr.GraphCaPtCtrl,
+		graphCaFtr.GraphCaExCtrl,
+		graphDiseaseFtr.GraphDiseasePtCtrl,
+		graphDiseaseFtr.GraphDiseaseExCtrl,
+		graphDmFtr.GraphDmPtCtrl,
+		graphDmFtr.GraphDmExCtrl)
 
 	fmt.Println("Server is running on http://localhost:8080")
 	log.Fatal(app.Listen(":8080"))

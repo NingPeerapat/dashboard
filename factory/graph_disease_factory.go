@@ -13,12 +13,12 @@ type GraphDiseaseCtrlFtr struct {
 	GraphDiseaseExCtrl *controller.GraphDiseaseExCtrl
 }
 
-func NewGraphDiseaseCtrlFtr(client *mongo.Client, dbName, colName string) *GraphDiseaseCtrlFtr {
-	graphDiseasePtRepo := repository.NewGraphDiseasePtRepo(client, dbName, colName)
+func NewGraphDiseaseCtrlFtr(colName *mongo.Collection, colTemp *mongo.Collection) *GraphDiseaseCtrlFtr {
+	graphDiseasePtRepo := repository.NewGraphDiseasePtRepo(colName, colTemp)
 	graphDiseasePtService := service.NewGraphDiseasePtService(graphDiseasePtRepo)
 	graphDiseasePtCtrl := controller.NewGraphDiseasePtCtrl(graphDiseasePtService)
 
-	graphDiseaseExRepo := repository.NewGraphDiseaseExRepo(client, dbName, colName)
+	graphDiseaseExRepo := repository.NewGraphDiseaseExRepo(colName, colTemp)
 	graphDiseaseExService := service.NewGraphDiseaseExService(graphDiseaseExRepo)
 	graphDiseaseExCtrl := controller.NewGraphDiseaseExCtrl(graphDiseaseExService)
 

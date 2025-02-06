@@ -12,8 +12,8 @@ type CardCtrlFtr struct {
 	CardCtrl *controller.CardCtrl
 }
 
-func NewCardCtrlFtr(client *mongo.Client, dbName, colName string) *CardCtrlFtr {
-	cardRepo := repository.NewCardRepo(client, dbName, colName)
+func NewCardCtrlFtr(colName *mongo.Collection, colTemp *mongo.Collection) *CardCtrlFtr {
+	cardRepo := repository.NewCardRepo(colName, colTemp)
 	cardService := service.NewCardService(cardRepo)
 	cardCtrl := controller.NewCardCtrl(cardService)
 

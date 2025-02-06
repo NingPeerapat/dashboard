@@ -13,12 +13,12 @@ type GraphDmCtrlFtr struct {
 	GraphDmExCtrl *controller.GraphDmExCtrl
 }
 
-func NewGraphDmCtrlFtr(client *mongo.Client, dbName, colName string) *GraphDmCtrlFtr {
-	graphDmPtRepo := repository.NewGraphDmPtRepo(client, dbName, colName)
+func NewGraphDmCtrlFtr(colName *mongo.Collection, colTemp *mongo.Collection) *GraphDmCtrlFtr {
+	graphDmPtRepo := repository.NewGraphDmPtRepo(colName, colTemp)
 	graphDmPtService := service.NewGraphDmPtService(graphDmPtRepo)
 	graphDmPtCtrl := controller.NewGraphDmPtCtrl(graphDmPtService)
 
-	graphDmExRepo := repository.NewGraphDmExRepo(client, dbName, colName)
+	graphDmExRepo := repository.NewGraphDmExRepo(colName, colTemp)
 	graphDmExService := service.NewGraphDmExService(graphDmExRepo)
 	graphDmExCtrl := controller.NewGraphDmExCtrl(graphDmExService)
 

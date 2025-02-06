@@ -13,16 +13,16 @@ type ChartCtrlFtr struct {
 	ChartExCtrl *controller.ChartExCtrl
 }
 
-func NewChartCtrlFtr(client *mongo.Client, dbName, colName string) *ChartCtrlFtr {
+func NewChartCtrlFtr(colName *mongo.Collection, colTemp *mongo.Collection) *ChartCtrlFtr {
 	// Chart Patient
-	chartPtRepo := repository.NewChartPtRepo(client, dbName, colName)
-	chartPtCount := repository.NewCountCidRepo(client, dbName, colName)
+	chartPtRepo := repository.NewChartPtRepo(colName, colTemp)
+	chartPtCount := repository.NewCountCidRepo(colName, colTemp)
 	chartPtService := service.NewChartPtService(chartPtRepo, chartPtCount)
 	chartPtCtrl := controller.NewChartPtCtrl(chartPtService)
 
 	// Chart Expense
-	chartExRepo := repository.NewChartExRepo(client, dbName, colName)
-	chartExCount := repository.NewCountCidRepo(client, dbName, colName)
+	chartExRepo := repository.NewChartExRepo(colName, colTemp)
+	chartExCount := repository.NewCountCidRepo(colName, colTemp)
 	chartExService := service.NewChartExService(chartExRepo, chartExCount)
 	chartExCtrl := controller.NewChartExCtrl(chartExService)
 

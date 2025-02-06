@@ -13,12 +13,12 @@ type GraphCaCtrlFtr struct {
 	GraphCaExCtrl *controller.GraphCaExCtrl
 }
 
-func NewGraphCaCtrlFtr(client *mongo.Client, dbName, colName string) *GraphCaCtrlFtr {
-	graphCaPtRepo := repository.NewGraphCaPtRepo(client, dbName, colName)
+func NewGraphCaCtrlFtr(colName *mongo.Collection, colTemp *mongo.Collection) *GraphCaCtrlFtr {
+	graphCaPtRepo := repository.NewGraphCaPtRepo(colName, colTemp)
 	graphCaPtService := service.NewGraphCaPtService(graphCaPtRepo)
 	graphCaPtCtrl := controller.NewGraphCaPtCtrl(graphCaPtService)
 
-	graphCaExRepo := repository.NewGraphCaExRepo(client, dbName, colName)
+	graphCaExRepo := repository.NewGraphCaExRepo(colName, colTemp)
 	graphCaExService := service.NewGraphCaExService(graphCaExRepo)
 	graphCaExCtrl := controller.NewGraphCaExCtrl(graphCaExService)
 

@@ -2,28 +2,28 @@ package service
 
 import (
 	"log"
-	"ning/go-dashboard/features/graph_disease/entities"
+	"ning/go-dashboard/features/graph_disease/entities/dto"
 	"ning/go-dashboard/features/graph_disease/repository"
 	"ning/go-dashboard/pkg/utils"
 	"sync"
 )
 
-type DiseasePatientService struct {
-	repo *repository.DiseasePatientRepository
+type GraphDiseasePtService struct {
+	repo *repository.GraphDiseasePtRepo
 }
 
-func NewDiseasePatientService(repo *repository.DiseasePatientRepository) *DiseasePatientService {
-	return &DiseasePatientService{repo: repo}
+func NewGraphDiseasePtService(repo *repository.GraphDiseasePtRepo) *GraphDiseasePtService {
+	return &GraphDiseasePtService{repo: repo}
 }
 
-func (service *DiseasePatientService) GetPatientData(body entities.DiseaseRequest) ([]entities.DiseaseData, error) {
+func (service *GraphDiseasePtService) GetGraphDiseasePtData(body dto.DiseaseRequest) ([]dto.DiseaseData, error) {
 
 	var wg sync.WaitGroup
 	cidData := make(map[string][]utils.PatientData)
 	errChan := make(chan error, 6)
 	var mu sync.Mutex
 
-	callRepo := func(key string, fn func(body entities.DiseaseRequest) ([]utils.PatientData, error)) {
+	callRepo := func(key string, fn func(body dto.DiseaseRequest) ([]utils.PatientData, error)) {
 		defer wg.Done()
 		count, err := fn(body)
 		if err != nil {
@@ -69,7 +69,7 @@ func (service *DiseasePatientService) GetPatientData(body entities.DiseaseReques
 		allDiseaseData[i] = dmData[i] + htData[i] + copdData[i] + caData[i] + psyData[i] + hdCvdData[i]
 	}
 
-	finalResult := []entities.DiseaseData{
+	finalResult := []dto.DiseaseData{
 		{
 			DiseaseName: "ทั้งหมด",
 			Data:        allDiseaseData,

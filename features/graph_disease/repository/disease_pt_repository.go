@@ -3,28 +3,28 @@ package repository
 import (
 	"context"
 	"fmt"
-	"ning/go-dashboard/features/graph_disease/entities"
+	"ning/go-dashboard/features/graph_disease/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type DiseasePatientRepository struct {
+type GraphDiseasePtRepo struct {
 	client         *mongo.Client
 	databaseName   string
 	collectionName string
 }
 
-func NewDiseasePatientRepository(client *mongo.Client, databaseName string, collectionName string) *DiseasePatientRepository {
-	return &DiseasePatientRepository{
+func NewGraphDiseasePtRepo(client *mongo.Client, databaseName string, collectionName string) *GraphDiseasePtRepo {
+	return &GraphDiseasePtRepo{
 		client:         client,
 		databaseName:   databaseName,
 		collectionName: collectionName,
 	}
 }
 
-func (repo *DiseasePatientRepository) GetDmPatient(body entities.DiseaseRequest) ([]utils.PatientData, error) {
+func (repo *GraphDiseasePtRepo) GetDmPatient(body dto.DiseaseRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -114,7 +114,7 @@ func (repo *DiseasePatientRepository) GetDmPatient(body entities.DiseaseRequest)
 	return results, nil
 }
 
-func (repo *DiseasePatientRepository) GetHtPatient(body entities.DiseaseRequest) ([]utils.PatientData, error) {
+func (repo *GraphDiseasePtRepo) GetHtPatient(body dto.DiseaseRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -204,7 +204,7 @@ func (repo *DiseasePatientRepository) GetHtPatient(body entities.DiseaseRequest)
 	return results, nil
 }
 
-func (repo *DiseasePatientRepository) GetCopdPatient(body entities.DiseaseRequest) ([]utils.PatientData, error) {
+func (repo *GraphDiseasePtRepo) GetCopdPatient(body dto.DiseaseRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -294,7 +294,7 @@ func (repo *DiseasePatientRepository) GetCopdPatient(body entities.DiseaseReques
 	return results, nil
 }
 
-func (repo *DiseasePatientRepository) GetCaPatient(body entities.DiseaseRequest) ([]utils.PatientData, error) {
+func (repo *GraphDiseasePtRepo) GetCaPatient(body dto.DiseaseRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -384,7 +384,7 @@ func (repo *DiseasePatientRepository) GetCaPatient(body entities.DiseaseRequest)
 	return results, nil
 }
 
-func (repo *DiseasePatientRepository) GetPsyPatient(body entities.DiseaseRequest) ([]utils.PatientData, error) {
+func (repo *GraphDiseasePtRepo) GetPsyPatient(body dto.DiseaseRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -474,7 +474,7 @@ func (repo *DiseasePatientRepository) GetPsyPatient(body entities.DiseaseRequest
 	return results, nil
 }
 
-func (repo *DiseasePatientRepository) GetHdCvdPatient(body entities.DiseaseRequest) ([]utils.PatientData, error) {
+func (repo *GraphDiseasePtRepo) GetHdCvdPatient(body dto.DiseaseRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)

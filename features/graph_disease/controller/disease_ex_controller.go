@@ -1,33 +1,33 @@
 package controller
 
 import (
-	"ning/go-dashboard/features/graph_disease/entities"
+	"ning/go-dashboard/features/graph_disease/entities/dto"
 	"ning/go-dashboard/features/graph_disease/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type DiseaseExpenseController struct {
-	service *service.DiseaseExpenseService
+type GraphDiseaseExCtrl struct {
+	service *service.GraphDiseaseExService
 }
 
-func NewDiseaseExpenseController(service *service.DiseaseExpenseService) *DiseaseExpenseController {
-	return &DiseaseExpenseController{service: service}
+func NewGraphDiseaseExCtrl(service *service.GraphDiseaseExService) *GraphDiseaseExCtrl {
+	return &GraphDiseaseExCtrl{service: service}
 }
 
-func (c *DiseaseExpenseController) GetExpenseData(ctx *fiber.Ctx) error {
-	var body entities.DiseaseRequest
+func (c *GraphDiseaseExCtrl) GetGraphDiseaseExData(ctx *fiber.Ctx) error {
+	var body dto.DiseaseRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.DiseaseResponse{
+			&dto.DiseaseResponse{
 				Status:  false,
 				Message: "Error in parsing request body",
-				Result:  []entities.DiseaseData{},
+				Result:  []dto.DiseaseData{},
 			})
 	}
 
-	CaRequest := entities.DiseaseRequest{
+	CaRequest := dto.DiseaseRequest{
 		Year:     2024,
 		Area:     body.Area,
 		Province: body.Province,
@@ -35,18 +35,18 @@ func (c *DiseaseExpenseController) GetExpenseData(ctx *fiber.Ctx) error {
 		Hcode:    body.Hcode,
 	}
 
-	expenseData, err := c.service.GetExpenseData(CaRequest)
+	expenseData, err := c.service.GetGraphDiseaseExData(CaRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
-			&entities.DiseaseResponse{
+			&dto.DiseaseResponse{
 				Status:  false,
 				Message: "Error for get expense data",
-				Result:  []entities.DiseaseData{},
+				Result:  []dto.DiseaseData{},
 			})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		&entities.DiseaseResponse{
+		&dto.DiseaseResponse{
 			Status:  true,
 			Message: "Success",
 			Result:  expenseData,

@@ -3,28 +3,29 @@ package repository
 import (
 	"context"
 	"fmt"
-	"ning/go-dashboard/features/graph_disease/entities"
+	"ning/go-dashboard/features/graph_disease/entities/dao"
+	"ning/go-dashboard/features/graph_disease/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type DiseaseExpenseRepository struct {
+type GraphDiseaseExRepo struct {
 	client         *mongo.Client
 	databaseName   string
 	collectionName string
 }
 
-func NewDiseaseExpenseRepository(client *mongo.Client, databaseName string, collectionName string) *DiseaseExpenseRepository {
-	return &DiseaseExpenseRepository{
+func NewGraphDiseaseExRepo(client *mongo.Client, databaseName string, collectionName string) *GraphDiseaseExRepo {
+	return &GraphDiseaseExRepo{
 		client:         client,
 		databaseName:   databaseName,
 		collectionName: collectionName,
 	}
 }
 
-func (repo *DiseaseExpenseRepository) GetDiseaseExpense(body entities.DiseaseRequest) ([]entities.DiseaseExpenseData, error) {
+func (repo *GraphDiseaseExRepo) GetGraphDiseaseExData(body dto.DiseaseRequest) ([]dao.DiseaseExpenseData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -83,9 +84,9 @@ func (repo *DiseaseExpenseRepository) GetDiseaseExpense(body entities.DiseaseReq
 	}
 	defer cursor.Close(ctx)
 
-	var results []entities.DiseaseExpenseData
+	var results []dao.DiseaseExpenseData
 	for cursor.Next(ctx) {
-		var result entities.DiseaseExpenseData
+		var result dao.DiseaseExpenseData
 		if err := cursor.Decode(&result); err != nil {
 			return nil, fmt.Errorf("error decoding data: %v", err)
 		}

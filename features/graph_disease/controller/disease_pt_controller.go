@@ -1,33 +1,33 @@
 package controller
 
 import (
-	"ning/go-dashboard/features/graph_disease/entities"
+	"ning/go-dashboard/features/graph_disease/entities/dto"
 	"ning/go-dashboard/features/graph_disease/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type DiseasePatientController struct {
-	service *service.DiseasePatientService
+type GraphDiseasePtCtrl struct {
+	service *service.GraphDiseasePtService
 }
 
-func NewDiseasePatientController(service *service.DiseasePatientService) *DiseasePatientController {
-	return &DiseasePatientController{service: service}
+func NewGraphDiseasePtCtrl(service *service.GraphDiseasePtService) *GraphDiseasePtCtrl {
+	return &GraphDiseasePtCtrl{service: service}
 }
 
-func (c *DiseasePatientController) GetPatientData(ctx *fiber.Ctx) error {
-	var body entities.DiseaseRequest
+func (c *GraphDiseasePtCtrl) GetGraphDiseasePtData(ctx *fiber.Ctx) error {
+	var body dto.DiseaseRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.DiseaseResponse{
+			&dto.DiseaseResponse{
 				Status:  false,
 				Message: "Error in parsing request body",
-				Result:  []entities.DiseaseData{},
+				Result:  []dto.DiseaseData{},
 			})
 	}
 
-	CaRequest := entities.DiseaseRequest{
+	CaRequest := dto.DiseaseRequest{
 		Year:     2024,
 		Area:     body.Area,
 		Province: body.Province,
@@ -35,18 +35,18 @@ func (c *DiseasePatientController) GetPatientData(ctx *fiber.Ctx) error {
 		Hcode:    body.Hcode,
 	}
 
-	patientData, err := c.service.GetPatientData(CaRequest)
+	patientData, err := c.service.GetGraphDiseasePtData(CaRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
-			&entities.DiseaseResponse{
+			&dto.DiseaseResponse{
 				Status:  false,
 				Message: "Error for get patient data",
-				Result:  []entities.DiseaseData{},
+				Result:  []dto.DiseaseData{},
 			})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		&entities.DiseaseResponse{
+		&dto.DiseaseResponse{
 			Status:  true,
 			Message: "Success",
 			Result:  patientData,

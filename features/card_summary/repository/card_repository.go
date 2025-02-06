@@ -3,30 +3,31 @@ package repository
 import (
 	"context"
 	"fmt"
-	"ning/go-dashboard/features/card_summary/entities"
+	"ning/go-dashboard/features/card_summary/entities/dao"
+	"ning/go-dashboard/features/card_summary/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type CardRepository struct {
+type CardRepo struct {
 	client         *mongo.Client
 	databaseName   string
 	collectionName string
 }
 
-func NewCardRepository(client *mongo.Client, databaseName string, collectionName string) *CardRepository {
-	return &CardRepository{
+func NewCardRepo(client *mongo.Client, databaseName string, collectionName string) *CardRepo {
+	return &CardRepo{
 		client:         client,
 		databaseName:   databaseName,
 		collectionName: collectionName,
 	}
 }
 
-func (repo *CardRepository) GetAllData(body entities.CardRequest) (*entities.CardRawData, error) {
+func (repo *CardRepo) GetCardData(body dto.CardRequest) (*dao.CardRawData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
-	var data entities.CardRawData
+	var data dao.CardRawData
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -87,9 +88,9 @@ func (repo *CardRepository) GetAllData(body entities.CardRequest) (*entities.Car
 	}
 	defer cursor.Close(ctx)
 
-	var results []entities.CardRawData
+	var results []dao.CardRawData
 	for cursor.Next(ctx) {
-		var result entities.CardRawData
+		var result dao.CardRawData
 		if err := cursor.Decode(&result); err != nil {
 			return nil, fmt.Errorf("error decoding data: %v", err)
 		}
@@ -107,9 +108,9 @@ func (repo *CardRepository) GetAllData(body entities.CardRequest) (*entities.Car
 	return &data, nil
 }
 
-func (repo *CardRepository) GetCidCountData(body entities.CardRequest) (*entities.CidCountData, error) {
+func (repo *CardRepo) GetCidCountData(body dto.CardRequest) (*dao.CidCountData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
-	var data entities.CidCountData
+	var data dao.CidCountData
 
 	matchStage, err := utils.MatchStageCardBar(body.StartDate, body.EndDate, body.Area, body.Province, body.District, body.Hcode)
 	if err != nil {
@@ -146,9 +147,9 @@ func (repo *CardRepository) GetCidCountData(body entities.CardRequest) (*entitie
 	}
 	defer cursor.Close(ctx)
 
-	var results []entities.CidCountData
+	var results []dao.CidCountData
 	for cursor.Next(ctx) {
-		var result entities.CidCountData
+		var result dao.CidCountData
 		if err := cursor.Decode(&result); err != nil {
 			return nil, fmt.Errorf("error decoding data: %v", err)
 		}

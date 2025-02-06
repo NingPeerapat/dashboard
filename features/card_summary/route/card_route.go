@@ -6,6 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterCardRoutes(app *fiber.App, controller *controller.CardController) {
+func RegisterCardRoutes(app *fiber.App, controller *controller.CardCtrl) {
 	app.Post("/card", controller.GetCardData)
 }

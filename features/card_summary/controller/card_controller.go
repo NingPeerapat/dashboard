@@ -1,54 +1,54 @@
 package controller
 
 import (
-	"ning/go-dashboard/features/card_summary/entities"
+	"ning/go-dashboard/features/card_summary/entities/dto"
 	"ning/go-dashboard/features/card_summary/service"
 	"ning/go-dashboard/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type CardController struct {
+type CardCtrl struct {
 	service *service.CardService
 }
 
-func NewCardController(service *service.CardService) *CardController {
-	return &CardController{service: service}
+func NewCardCtrl(service *service.CardService) *CardCtrl {
+	return &CardCtrl{service: service}
 }
 
-func (c *CardController) GetCardData(ctx *fiber.Ctx) error {
-	var body entities.CardCilent
+func (c *CardCtrl) GetCardData(ctx *fiber.Ctx) error {
+	var body dto.CardCilent
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.CardResponse{
+			&dto.CardResponse{
 				Status:  false,
 				Message: "Error in parsing request body",
-				Result:  []entities.CardData{},
+				Result:  []dto.CardData{},
 			})
 	}
 
 	dateStart, err := utils.ParseDate(body.StartDate)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.CardResponse{
+			&dto.CardResponse{
 				Status:  false,
 				Message: err.Error(),
-				Result:  []entities.CardData{},
+				Result:  []dto.CardData{},
 			})
 	}
 
 	dateEnd, err := utils.ParseDate(body.EndDate)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.CardResponse{
+			&dto.CardResponse{
 				Status:  false,
 				Message: err.Error(),
-				Result:  []entities.CardData{},
+				Result:  []dto.CardData{},
 			})
 	}
 
-	cardRequest := entities.CardRequest{
+	cardRequest := dto.CardRequest{
 		StartDate: dateStart,
 		EndDate:   dateEnd,
 		Area:      body.Area,
@@ -63,15 +63,15 @@ func (c *CardController) GetCardData(ctx *fiber.Ctx) error {
 	cardData, err := c.service.GetCardData(cardRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
-			&entities.CardResponse{
+			&dto.CardResponse{
 				Status:  false,
 				Message: "Error for get card data",
-				Result:  []entities.CardData{},
+				Result:  []dto.CardData{},
 			})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		&entities.CardResponse{
+		&dto.CardResponse{
 			Status:  true,
 			Message: "Success",
 			Result:  cardData,

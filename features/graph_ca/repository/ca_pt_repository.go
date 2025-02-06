@@ -3,28 +3,28 @@ package repository
 import (
 	"context"
 	"fmt"
-	"ning/go-dashboard/features/graph_ca/entities"
+	"ning/go-dashboard/features/graph_ca/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type GraphCaPatientRepository struct {
+type GraphCaPtRepo struct {
 	client         *mongo.Client
 	databaseName   string
 	collectionName string
 }
 
-func NewGraphCaPatientRepository(client *mongo.Client, databaseName string, collectionName string) *GraphCaPatientRepository {
-	return &GraphCaPatientRepository{
+func NewGraphCaPtRepo(client *mongo.Client, databaseName string, collectionName string) *GraphCaPtRepo {
+	return &GraphCaPtRepo{
 		client:         client,
 		databaseName:   databaseName,
 		collectionName: collectionName,
 	}
 }
 
-func (repo *GraphCaPatientRepository) GetCaPatient(body entities.CaRequest) ([]utils.PatientData, error) {
+func (repo *GraphCaPtRepo) GetCaPatient(body dto.CaRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -114,7 +114,7 @@ func (repo *GraphCaPatientRepository) GetCaPatient(body entities.CaRequest) ([]u
 	return results, nil
 }
 
-func (repo *GraphCaPatientRepository) GetLungCaPatient(body entities.CaRequest) ([]utils.PatientData, error) {
+func (repo *GraphCaPtRepo) GetLungCaPatient(body dto.CaRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -204,7 +204,7 @@ func (repo *GraphCaPatientRepository) GetLungCaPatient(body entities.CaRequest) 
 	return results, nil
 }
 
-func (repo *GraphCaPatientRepository) GetBreastCaPatient(body entities.CaRequest) ([]utils.PatientData, error) {
+func (repo *GraphCaPtRepo) GetBreastCaPatient(body dto.CaRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -294,7 +294,7 @@ func (repo *GraphCaPatientRepository) GetBreastCaPatient(body entities.CaRequest
 	return results, nil
 }
 
-func (repo *GraphCaPatientRepository) GetCervicalCaPatient(body entities.CaRequest) ([]utils.PatientData, error) {
+func (repo *GraphCaPtRepo) GetCervicalCaPatient(body dto.CaRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -384,7 +384,7 @@ func (repo *GraphCaPatientRepository) GetCervicalCaPatient(body entities.CaReque
 	return results, nil
 }
 
-func (repo *GraphCaPatientRepository) GetLiverCaPatient(body entities.CaRequest) ([]utils.PatientData, error) {
+func (repo *GraphCaPtRepo) GetLiverCaPatient(body dto.CaRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -474,7 +474,7 @@ func (repo *GraphCaPatientRepository) GetLiverCaPatient(body entities.CaRequest)
 	return results, nil
 }
 
-func (repo *GraphCaPatientRepository) GetColorectalCaPatient(body entities.CaRequest) ([]utils.PatientData, error) {
+func (repo *GraphCaPtRepo) GetColorectalCaPatient(body dto.CaRequest) ([]utils.PatientData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)

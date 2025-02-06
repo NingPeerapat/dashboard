@@ -2,28 +2,28 @@ package service
 
 import (
 	"log"
-	"ning/go-dashboard/features/graph_ca/entities"
+	"ning/go-dashboard/features/graph_ca/entities/dto"
 	"ning/go-dashboard/features/graph_ca/repository"
 	"ning/go-dashboard/pkg/utils"
 	"sync"
 )
 
-type GraphCaPatientService struct {
-	repo *repository.GraphCaPatientRepository
+type GraphCaPtService struct {
+	repo *repository.GraphCaPtRepo
 }
 
-func NewGraphCaPatientService(repo *repository.GraphCaPatientRepository) *GraphCaPatientService {
-	return &GraphCaPatientService{repo: repo}
+func NewGraphCaPtService(repo *repository.GraphCaPtRepo) *GraphCaPtService {
+	return &GraphCaPtService{repo: repo}
 }
 
-func (service *GraphCaPatientService) GetPatientData(body entities.CaRequest) ([]entities.CaData, error) {
+func (service *GraphCaPtService) GetGraphCaPtData(body dto.CaRequest) ([]dto.CaData, error) {
 
 	var wg sync.WaitGroup
 	cidData := make(map[string][]utils.PatientData)
 	errChan := make(chan error, 6)
 	var mu sync.Mutex
 
-	callRepo := func(key string, fn func(body entities.CaRequest) ([]utils.PatientData, error)) {
+	callRepo := func(key string, fn func(body dto.CaRequest) ([]utils.PatientData, error)) {
 		defer wg.Done()
 		count, err := fn(body)
 		if err != nil {
@@ -69,7 +69,7 @@ func (service *GraphCaPatientService) GetPatientData(body entities.CaRequest) ([
 		finalCaData[i] = item - (lungCaData[i] + breastCaData[i] + cervicalCaData[i] + liverCaData[i] + colorectalCaData[i])
 	}
 
-	finalResult := []entities.CaData{
+	finalResult := []dto.CaData{
 		{
 			DiseaseName: "โรคมะเร็งปอด",
 			Data:        lungCaData,

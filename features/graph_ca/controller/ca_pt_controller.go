@@ -1,33 +1,33 @@
 package controller
 
 import (
-	"ning/go-dashboard/features/graph_ca/entities"
+	"ning/go-dashboard/features/graph_ca/entities/dto"
 	"ning/go-dashboard/features/graph_ca/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type GraphCaPatientController struct {
-	service *service.GraphCaPatientService
+type GraphCaPtCtrl struct {
+	service *service.GraphCaPtService
 }
 
-func NewGraphCaPatientController(service *service.GraphCaPatientService) *GraphCaPatientController {
-	return &GraphCaPatientController{service: service}
+func NewGraphCaPtCtrl(service *service.GraphCaPtService) *GraphCaPtCtrl {
+	return &GraphCaPtCtrl{service: service}
 }
 
-func (c *GraphCaPatientController) GetPatientData(ctx *fiber.Ctx) error {
-	var body entities.CaRequest
+func (c *GraphCaPtCtrl) GetGraphCaPtData(ctx *fiber.Ctx) error {
+	var body dto.CaRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.CaResponse{
+			&dto.CaResponse{
 				Status:  false,
 				Message: "Error in parsing request body",
-				Result:  []entities.CaData{},
+				Result:  []dto.CaData{},
 			})
 	}
 
-	CaRequest := entities.CaRequest{
+	CaRequest := dto.CaRequest{
 		Year:     2024,
 		Area:     body.Area,
 		Province: body.Province,
@@ -35,18 +35,18 @@ func (c *GraphCaPatientController) GetPatientData(ctx *fiber.Ctx) error {
 		Hcode:    body.Hcode,
 	}
 
-	patientData, err := c.service.GetPatientData(CaRequest)
+	patientData, err := c.service.GetGraphCaPtData(CaRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
-			&entities.CaResponse{
+			&dto.CaResponse{
 				Status:  false,
 				Message: "Error for get patient data",
-				Result:  []entities.CaData{},
+				Result:  []dto.CaData{},
 			})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		&entities.CaResponse{
+		&dto.CaResponse{
 			Status:  true,
 			Message: "Success",
 			Result:  patientData,

@@ -3,28 +3,29 @@ package repository
 import (
 	"context"
 	"fmt"
-	"ning/go-dashboard/features/graph_ca/entities"
+	"ning/go-dashboard/features/graph_ca/entities/dao"
+	"ning/go-dashboard/features/graph_ca/entities/dto"
 	"ning/go-dashboard/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type GraphCaExpenseRepository struct {
+type GraphCaExRepo struct {
 	client         *mongo.Client
 	databaseName   string
 	collectionName string
 }
 
-func NewGraphCaExpenseRepository(client *mongo.Client, databaseName string, collectionName string) *GraphCaExpenseRepository {
-	return &GraphCaExpenseRepository{
+func NewGraphCaExRepo(client *mongo.Client, databaseName string, collectionName string) *GraphCaExRepo {
+	return &GraphCaExRepo{
 		client:         client,
 		databaseName:   databaseName,
 		collectionName: collectionName,
 	}
 }
 
-func (repo *GraphCaExpenseRepository) GetCaExpense(body entities.CaRequest) ([]entities.CaExpenseData, error) {
+func (repo *GraphCaExRepo) GetGraphCaExData(body dto.CaRequest) ([]dao.CaExpenseData, error) {
 	collection := repo.client.Database(repo.databaseName).Collection(repo.collectionName)
 
 	matchStage, err := utils.MatchStageGraph(body.Year, body.Area, body.Province, body.District, body.Hcode)
@@ -83,9 +84,9 @@ func (repo *GraphCaExpenseRepository) GetCaExpense(body entities.CaRequest) ([]e
 	}
 	defer cursor.Close(ctx)
 
-	var results []entities.CaExpenseData
+	var results []dao.CaExpenseData
 	for cursor.Next(ctx) {
-		var result entities.CaExpenseData
+		var result dao.CaExpenseData
 		if err := cursor.Decode(&result); err != nil {
 			return nil, fmt.Errorf("error decoding data: %v", err)
 		}

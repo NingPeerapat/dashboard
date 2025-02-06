@@ -1,33 +1,33 @@
 package controller
 
 import (
-	"ning/go-dashboard/features/graph_ca/entities"
+	"ning/go-dashboard/features/graph_ca/entities/dto"
 	"ning/go-dashboard/features/graph_ca/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type GraphCaExpenseController struct {
-	service *service.GraphCaExpenseService
+type GraphCaExCtrl struct {
+	service *service.GraphCaExService
 }
 
-func NewGraphCaExpenseController(service *service.GraphCaExpenseService) *GraphCaExpenseController {
-	return &GraphCaExpenseController{service: service}
+func NewGraphCaExCtrl(service *service.GraphCaExService) *GraphCaExCtrl {
+	return &GraphCaExCtrl{service: service}
 }
 
-func (c *GraphCaExpenseController) GetExpenseData(ctx *fiber.Ctx) error {
-	var body entities.CaRequest
+func (c *GraphCaExCtrl) GetGraphCaExData(ctx *fiber.Ctx) error {
+	var body dto.CaRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			&entities.CaResponse{
+			&dto.CaResponse{
 				Status:  false,
 				Message: "Error in parsing request body",
-				Result:  []entities.CaData{},
+				Result:  []dto.CaData{},
 			})
 	}
 
-	CaRequest := entities.CaRequest{
+	CaRequest := dto.CaRequest{
 		Year:     2024,
 		Area:     body.Area,
 		Province: body.Province,
@@ -35,18 +35,18 @@ func (c *GraphCaExpenseController) GetExpenseData(ctx *fiber.Ctx) error {
 		Hcode:    body.Hcode,
 	}
 
-	expenseData, err := c.service.GetExpenseData(CaRequest)
+	expenseData, err := c.service.GetGraphCaExData(CaRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(
-			&entities.CaResponse{
+			&dto.CaResponse{
 				Status:  false,
 				Message: "Error for get expense data",
-				Result:  []entities.CaData{},
+				Result:  []dto.CaData{},
 			})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		&entities.CaResponse{
+		&dto.CaResponse{
 			Status:  true,
 			Message: "Success",
 			Result:  expenseData,
